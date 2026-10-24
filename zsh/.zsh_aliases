@@ -97,26 +97,76 @@ wtrm() {
 }
 
 # --- ssh key management ---
-dotfiles-gen-git-key() {
-  local email="${1:-}"
-  if [ -z "$email" ]; then
-    echo "Usage: dotfiles-gen-git-key <email>"
-    return 1
-  fi
-  ssh-keygen -t ed25519 -C "$email" -f "$HOME/.ssh/id_ed25519_git"
-  eval "$(ssh-agent -s)"
-  ssh-add "$HOME/.ssh/id_ed25519_git"
-  echo ""
-  echo "Public key (add to GitHub/GitLab):"
-  cat "$HOME/.ssh/id_ed25519_git.pub"
+
+# Reuse a running agent. `ssh-add -l` exits 2 only when no agent is reachable;
+# 0 (keys loaded) and 1 (agent up, no keys) both mean one is already running.
+_dotfiles_ssh_agent() {
+  ssh-add -l >/dev/null 2>&1
+  [ $? -ne 2 ] && return 0
+  eval "$(ssh-agent -s)" >/dev/null
 }
 
-dotfiles-gen-machine-key() {
-  local name="${1:-$(hostname)}"
-  ssh-keygen -t ed25519 -C "$name" -f "$HOME/.ssh/id_ed25519_machines"
-  eval "$(ssh-agent -s)"
-  ssh-add "$HOME/.ssh/id_ed25519_machines"
+_dotfiles_ssh_add() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    ssh-add --apple-use-keychain "$1" 2>/dev/null || ssh-add "$1"
+  else
+    ssh-add "$1"
+  fi
+}
+
+# Generating over an existing key silently revokes your access to everything
+# that trusts it, so refuse unless --force is given.
+_dotfiles_gen_key() {
+  local key="$1" comment="$2" force="$3" label="$4"
+
+  if [ -e "$key" ] && [ "$force" != "--force" ]; then
+    echo "Key already exists: $key" >&2
+    echo "" >&2
+    echo "Hosts that trust it (GitHub, remote machines) would stop accepting" >&2
+    echo "you until the new public key is uploaded everywhere. To replace it:" >&2
+    echo "    ${funcstack[2]:-<command>} $comment --force" >&2
+    return 1
+  fi
+
+  ssh-keygen -t ed25519 -C "$comment" -f "$key" || return 1
+  _dotfiles_ssh_agent
+  _dotfiles_ssh_add "$key"
+
   echo ""
-  echo "Public key (use with: ssh-copy-id -i ~/.ssh/id_ed25519_machines.pub user@host):"
-  cat "$HOME/.ssh/id_ed25519_machines.pub"
+  echo "$label"
+  cat "$key.pub"
+  if [ -n "${CLIPBOARD_CMD:-}" ] && cat "$key.pub" | eval "$CLIPBOARD_CMD" 2>/dev/null; then
+    echo "(copied to clipboard)"
+  fi
+}
+
+# Key for git hosting: GitHub, GitLab.
+dotfiles-gen-git-key() {
+  local email="" force="" a
+  for a in "$@"; do
+    case "$a" in
+      --force) force="--force" ;;
+      *)       email="$a" ;;
+    esac
+  done
+  if [ -z "$email" ]; then
+    echo "Usage: dotfiles-gen-git-key <email> [--force]"
+    return 1
+  fi
+  _dotfiles_gen_key "$HOME/.ssh/id_ed25519_git" "$email" "$force" \
+    "Public key — add to GitHub/GitLab (Settings > SSH keys):"
+}
+
+# Key for reaching other machines over SSH, deployed with ssh-copy-id.
+dotfiles-gen-machine-key() {
+  local name="" force="" a
+  for a in "$@"; do
+    case "$a" in
+      --force) force="--force" ;;
+      *)       name="$a" ;;
+    esac
+  done
+  [ -z "$name" ] && name="$(hostname -s 2>/dev/null || hostname)"
+  _dotfiles_gen_key "$HOME/.ssh/id_ed25519_machines" "$name" "$force" \
+    "Public key — deploy with: ssh-copy-id -i ~/.ssh/id_ed25519_machines.pub user@host"
 }
