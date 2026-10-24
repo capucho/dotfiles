@@ -2,6 +2,12 @@
 # the os-local include at the bottom, stowed from hosts/<hostname>/.
 font-feature = -calt, -liga, -dlig
 
+# Always open zsh, regardless of the account's login shell. Without this
+# Ghostty falls back to $SHELL or the passwd entry, which is bash on a fresh
+# Omarchy install and only changes after chsh plus a full logout. Left as a
+# bare name so it resolves via PATH: /bin/zsh on macOS, /usr/bin/zsh on Arch.
+command = zsh
+
 # Omarchy keeps a symlink to the active system theme here, so switching theme
 # in Omarchy also themes the terminal. The '?' prefix makes the include
 # optional, so this file still works on machines without Omarchy. The path

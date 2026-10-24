@@ -44,6 +44,21 @@ unreliable. Branch **inside** the config file instead:
 - SSH: `IgnoreUnknown UseKeychain` — that keyword is macOS-only and Linux
   OpenSSH aborts on unknown keywords.
 - Clipboard: `$CLIPBOARD_CMD` resolves to `pbcopy` / `wl-copy` / `xclip`.
+
+### Always getting zsh
+
+Three independent layers, because any one alone leaves a gap:
+
+1. `command = zsh` in the Ghostty config — Ghostty launches zsh directly rather
+   than trusting `$SHELL`/passwd. Bare name so PATH resolves it per platform.
+2. `export SHELL` in `.zshrc` — `$SHELL` reports the passwd entry, not the
+   running shell, so tmux (which derives `default-shell` from it) would open
+   bash panes inside a zsh terminal. Corrected to the running zsh.
+3. `chsh -s $(command -v zsh)` in the install script — fixes the login shell
+   for tty and ssh sessions, which never go through Ghostty. Needs a logout.
+
+Do not drop to only `chsh`: it requires a full logout, so a fresh Omarchy box
+would run bash in the meantime.
 - Ghostty: the shared `config` holds cross-platform keys only and ends with
   `config-file = ?~/.config/ghostty/os-local`. Machine-specific keys live in
   `hosts/<hostname>/.config/ghostty/os-local`. `macos-option-as-alt` and a

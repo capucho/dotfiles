@@ -1,6 +1,15 @@
 export EDITOR="nvim"
 export VISUAL="nvim"
 
+# $SHELL reports the passwd entry, not the shell actually running. Ghostty is
+# configured to launch zsh directly, so on a machine where chsh has not taken
+# effect yet $SHELL still says bash and anything deriving a shell from it —
+# tmux panes most visibly — would open bash inside a zsh terminal. Point it at
+# the zsh we are in. A no-op once chsh has applied.
+if [ -n "${ZSH_VERSION:-}" ]; then
+  export SHELL="${commands[zsh]:-$SHELL}"
+fi
+
 # Local binaries (fnm, uv and other installers land here on Linux)
 export PATH="$HOME/.local/bin:$PATH"
 
