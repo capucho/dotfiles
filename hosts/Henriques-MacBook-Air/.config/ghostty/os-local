@@ -1,0 +1,8 @@
+# macOS-only settings. Both of these are invalid on Linux:
+# macos-option-as-alt is a macOS option, and the theme here is a local
+# preference while Omarchy drives the theme on the Linux machine.
+macos-option-as-alt = true
+
+# Note: the correct theme name is "Oxocarbon". The previous config said
+# "Oxocarbo", so this theme was never actually applying.
+theme = Oxocarbon

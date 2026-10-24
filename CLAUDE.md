@@ -44,6 +44,13 @@ unreliable. Branch **inside** the config file instead:
 - SSH: `IgnoreUnknown UseKeychain` — that keyword is macOS-only and Linux
   OpenSSH aborts on unknown keywords.
 - Clipboard: `$CLIPBOARD_CMD` resolves to `pbcopy` / `wl-copy` / `xclip`.
+- Ghostty: the shared `config` holds cross-platform keys only and ends with
+  `config-file = ?~/.config/ghostty/os-local`. Machine-specific keys live in
+  `hosts/<hostname>/.config/ghostty/os-local`. `macos-option-as-alt` and a
+  hardcoded `theme` are macOS-only — on Linux they are unknown fields and
+  Ghostty prints an error at startup. The shared config also optionally
+  includes Omarchy's active theme symlink so Omarchy keeps driving the theme.
+  A `?` prefix on a `config-file` path makes a missing file silently ignored.
 
 ## Never use a tool without verifying it exists
 

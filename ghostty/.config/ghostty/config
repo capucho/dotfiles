@@ -1,3 +1,15 @@
-≤macos-option-as-alt=true
-font-feature=-calt, -liga, -dlig
-theme=Oxocarbo
+# Cross-platform settings only. Anything OS- or machine-specific belongs in
+# the os-local include at the bottom, stowed from hosts/<hostname>/.
+font-feature = -calt, -liga, -dlig
+
+# Omarchy keeps a symlink to the active system theme here, so switching theme
+# in Omarchy also themes the terminal. The '?' prefix makes the include
+# optional, so this file still works on machines without Omarchy. The path
+# moved between Omarchy versions, so both known locations are tried.
+config-file = ?~/.config/omarchy/current/theme/ghostty.conf
+config-file = ?~/.local/state/omarchy/current/theme/ghostty.conf
+
+# Per-machine overrides. Ghostty applies config-file includes at the end of the
+# file, in order, so this one wins over the theme includes above. On macOS it
+# sets the theme; on Omarchy the file is absent, so the system theme applies.
+config-file = ?~/.config/ghostty/os-local
