@@ -30,6 +30,10 @@ bash install-omarchy.sh
 
 The scripts are **idempotent** — safe to re-run after pulling updates.
 
+If a config already exists on the machine, it is moved aside to
+`<file>.bak.<timestamp>` rather than overwritten, so migrating an existing
+machine is non-destructive.
+
 ## What gets installed
 
 | Tool | Mac | Omarchy | Notes |
@@ -124,9 +128,15 @@ dotfiles/
 
 - SSH private keys
 - AWS credentials or live `~/.aws/config`
-- Herdr session data
+- Git identity (`~/.config/git/config.local`)
+- Herdr session data, sockets and logs
 - Claude cache, history, sessions
+- Tmux plugins (TPM clones them at install time)
 - `.env` files
+
+The install scripts pre-create `~/.ssh`, `~/.claude`, `~/.config/git`,
+`~/.config/herdr` and `~/.config/tmux` as real directories so that stow links
+only the tracked config files and runtime state never lands inside the repo.
 
 ## Adding a new tool
 

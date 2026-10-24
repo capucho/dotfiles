@@ -1,12 +1,19 @@
-# SSH private keys — never commit
-ssh/.ssh/id_*
-!ssh/.ssh/id_*.pub
-ssh/.ssh/known_hosts
-ssh/.ssh/authorized_keys
+# SSH — never commit keys or host state.
+# The install scripts pre-create ~/.ssh as a real directory so stow cannot
+# fold it into this repo; these rules are a second line of defence.
+ssh/.ssh/*
+!ssh/.ssh/config
+
+# Git identity — written by the install script, intentionally untracked
+git/.config/git/config.local
 
 # AWS live config — only the template is tracked
 aws/.aws/config
 aws/.aws/credentials
+
+# Tmux plugins — TPM clones into ~/.config/tmux/plugins, which stow folds
+# into this repo, so the clones land here. Never track them.
+tmux/.config/tmux/plugins/
 
 # Herdr runtime state
 herdr/.config/herdr/herdr-client.log

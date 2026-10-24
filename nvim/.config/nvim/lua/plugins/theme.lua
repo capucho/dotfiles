@@ -1,5 +1,10 @@
--- Mac only: stowed by install-mac.sh, not by install-omarchy.sh
--- Omarchy manages colorscheme via its own theme system
+-- Colorscheme is set on macOS only.
+-- On Omarchy the system theme drives Neovim's colorscheme, so this file
+-- returns nothing there and leaves the base config untouched.
+if vim.fn.has("mac") ~= 1 then
+  return {}
+end
+
 return {
   {
     "nyoom-engineering/oxocarbon.nvim",

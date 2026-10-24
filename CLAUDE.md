@@ -9,20 +9,63 @@ Single config repo managed with GNU Stow. Each top-level directory is a stow pac
 - Each package dir mirrors `$HOME`. Example: `tmux/.config/tmux/tmux.conf` stows to `~/.config/tmux/tmux.conf`.
 - Run stow from `~/dotfiles/`: `stow --restow --target="$HOME" <package>`
 - `hosts/<hostname>/` contains machine-specific overrides, stowed the same way.
-- `nvim/lua/plugins/theme.lua` is Mac-only — stowed manually by `install-mac.sh`, not by `install-omarchy.sh`.
+- Host lookup uses `hostname -s`. On macOS plain `hostname` returns
+  `Henriques-MacBook-Air.local` and will not match the `hosts/` directory name.
+
+### Tree folding — read before adding a package
+
+If a target directory does not exist, stow creates **one symlink for the whole
+directory** instead of linking each file. Anything written there at runtime then
+lands inside this repo.
+
+The install scripts therefore `mkdir -p` these before stowing, so they stay real
+directories and only the tracked files are linked:
+
+`~/.ssh`, `~/.claude`, `~/.config/git`, `~/.config/herdr`, `~/.config/tmux`
+
+Without that, SSH private keys, `git config.local`, herdr sockets, Claude's
+cache/history and TPM's cloned plugins all end up inside the repo.
+
+**When adding a package, ask: does anything write to this directory at runtime?**
+If yes, add it to the `mkdir -p` list in both install scripts.
+
+Directories that are safe to fold (config only, no runtime writes): `~/.config/nvim`,
+`~/.config/ghostty`, `~/.config/mise`.
+
+### Platform-specific config
+
+Never branch on platform by stowing different files — stow folding makes that
+unreliable. Branch **inside** the config file instead:
+
+- Neovim: `lua/plugins/theme.lua` returns `{}` unless `vim.fn.has("mac")`, so
+  Omarchy's theme system keeps control of the colorscheme.
+- zsh: guard on `command -v <tool>`, never on a hardcoded install path
+  (brew and the Linux installers use different prefixes).
+- SSH: `IgnoreUnknown UseKeychain` — that keyword is macOS-only and Linux
+  OpenSSH aborts on unknown keywords.
+- Clipboard: `$CLIPBOARD_CMD` resolves to `pbcopy` / `wl-copy` / `xclip`.
 
 ## Adding a new tool
 
 1. Create `<tool>/.config/<tool>/` (or wherever the tool reads its config).
-2. Add `brew install <tool>` to `install-mac.sh` and `omarchy pkg add <tool>` to `install-omarchy.sh`.
-3. Add `stow <tool>` to both install scripts.
-4. Document in README.md under the tools table.
+2. Add it to `BREW_FORMULAE` (or `BREW_CASKS`) in `install-mac.sh` and to
+   `PACKAGES` in `install-omarchy.sh`. Package names differ: `gh` on Homebrew
+   is `github-cli` on Arch.
+3. Add the package to the `PACKAGES` stow list in both scripts.
+4. If anything writes to its config dir at runtime, add that dir to the
+   `mkdir -p` list in both scripts (see Tree folding above).
+5. Document it in the README tools table.
 
 ## Platform rules
 
-- **Mac**: use `brew install`. Never `sudo apt` or `pacman`.
-- **Omarchy**: use `omarchy pkg add` — never raw `pacman -S` or `yay`. This respects Omarchy's update layer.
-- **Omarchy AUR**: if a package isn't in official repos, check with the user before using AUR directly.
+- **Mac**: use `brew install`. Check formulae with `brew list --formula` and
+  casks with `brew list --cask` — ghostty is a **cask**, so a plain
+  `brew list ghostty` check never matches.
+- **Omarchy**: use `omarchy pkg add` — never raw `pacman -S`, `paru` or `yay`.
+  This keeps Omarchy's update channel authoritative. `pacman -Q` is fine for
+  *querying* whether something is installed.
+- **Omarchy AUR**: if a package isn't in the official repos, check with the user
+  before reaching for the AUR.
 
 ## What never to commit
 
