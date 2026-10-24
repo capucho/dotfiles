@@ -32,32 +32,51 @@ require() {
   fi
 }
 
-# brew_install <formula|cask> <package> [binary-to-verify]
-# Verifies the binary actually appeared rather than trusting the installer.
-brew_install() {
-  local kind="$1" pkg="$2" bin="${3:-}"
+SHADOWED=""
 
-  if [ -n "$bin" ] && has "$bin"; then
-    success "$pkg (provides $bin)"
-    return 0
-  fi
+# brew_install <formula|cask> <package> [binary-to-verify]
+#
+# Homebrew is the owner of record on macOS, so presence of the *binary* is not
+# enough: a manual install in /usr/local never receives `brew upgrade`. We
+# therefore check Homebrew itself, install if absent, then verify the binary
+# and report anything outside the Homebrew prefix that shadows it.
+brew_install() {
+  local kind="$1" pkg="$2" bin="${3:-}" loc
+
   if brew list --"$kind" "$pkg" >/dev/null 2>&1; then
     success "$pkg already installed"
-    return 0
+  else
+    info "Installing $pkg..."
+    if [ "$kind" = "cask" ]; then
+      brew install --cask "$pkg" \
+        || { warn "failed to install $pkg"; record_failure "$pkg (brew install --cask $pkg)"; return 0; }
+    else
+      brew install "$pkg" \
+        || { warn "failed to install $pkg"; record_failure "$pkg (brew install $pkg)"; return 0; }
+    fi
+    success "$pkg installed"
   fi
 
-  info "Installing $pkg..."
-  if [ "$kind" = "cask" ]; then
-    brew install --cask "$pkg" || { warn "failed to install $pkg"; record_failure "$pkg (brew install --cask $pkg)"; return 0; }
-  else
-    brew install "$pkg" || { warn "failed to install $pkg"; record_failure "$pkg (brew install $pkg)"; return 0; }
-  fi
-  if [ -n "$bin" ] && ! has "$bin"; then
+  [ -z "$bin" ] && return 0
+
+  if ! has "$bin"; then
     warn "$pkg installed but '$bin' is not on PATH"
     record_failure "$pkg (installed, but $bin missing from PATH)"
     return 0
   fi
-  success "$pkg installed"
+
+  # Casks install into /Applications by design, so a path outside the
+  # Homebrew prefix is expected and not worth reporting.
+  [ "$kind" = "cask" ] && return 0
+
+  loc="$(command -v "$bin")"
+  case "$loc" in
+    "$BREW_PREFIX"/*) ;;
+    # Apple's own tools in /usr/bin are expected and managed by macOS.
+    /usr/bin/*) ;;
+    *) warn "'$bin' resolves to $loc, outside Homebrew"
+       SHADOWED="${SHADOWED}  - $bin -> $loc"$'\n' ;;
+  esac
 }
 
 # ---------------------------------------------------------------------------
@@ -78,7 +97,8 @@ if ! has brew; then
   done
 fi
 require "brew|https://brew.sh"
-success "Preflight passed"
+BREW_PREFIX="$(brew --prefix)"
+success "Preflight passed (Homebrew prefix: $BREW_PREFIX)"
 
 # ---------------------------------------------------------------------------
 # Formulae. Third field is the binary used to verify the install worked.
@@ -299,6 +319,14 @@ else
   echo "  DONE"
   echo "============================================================"
 fi
+
+if [ -n "$SHADOWED" ]; then
+  echo ""
+  echo "  These tools resolve outside Homebrew, so they will not receive"
+  echo "  'brew upgrade'. Consider removing the unmanaged copy:"
+  printf '%s' "$SHADOWED"
+fi
+
 cat <<'EOF'
 
   Next steps:

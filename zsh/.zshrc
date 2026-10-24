@@ -4,6 +4,18 @@ export VISUAL="nvim"
 # Local binaries (fnm, uv and other installers land here on Linux)
 export PATH="$HOME/.local/bin:$PATH"
 
+# Homebrew. Run last of the PATH prepends so brew-managed tools take
+# precedence over stray manual installs in /usr/local (macOS puts
+# /usr/local/bin ahead of /opt/homebrew/bin by default). Handles both
+# Apple Silicon (/opt/homebrew) and Intel (/usr/local) prefixes.
+for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+  if [ -x "$_brew" ]; then
+    eval "$("$_brew" shellenv)"
+    break
+  fi
+done
+unset _brew
+
 # fnm — Node version management.
 # Guard on the binary, not a fixed dir: brew installs to /opt/homebrew/bin,
 # the Linux installer to ~/.local/bin.
