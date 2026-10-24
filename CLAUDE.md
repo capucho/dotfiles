@@ -45,13 +45,39 @@ unreliable. Branch **inside** the config file instead:
   OpenSSH aborts on unknown keywords.
 - Clipboard: `$CLIPBOARD_CMD` resolves to `pbcopy` / `wl-copy` / `xclip`.
 
+## Never use a tool without verifying it exists
+
+Installing a package is not proof the tool works. Both install scripts follow
+this discipline and any change must keep it:
+
+- `has <bin>` — the only way to test for a command.
+- `require "<bin>|<how to get it>"` — hard gate before a phase that cannot work
+  without the tool. Aborts with an actionable message. Used at preflight
+  (`git`, `curl`, `pacman`/`brew`) and before the stow phase (`stow`).
+- `install_pkg <pkg> [bin]` / `brew_install <kind> <pkg> [bin]` — install, then
+  **verify the binary appeared**. A failure is recorded in `$FAILED` and
+  reported in the summary; it never kills the run.
+- `install_any <bin> <pkg>...` (Omarchy) — for tools whose package name differs
+  between repos. `gh` is `github-cli` on Arch; this resolves it.
+
+Dependent phases must be guarded by the tool they need, not assumed:
+`npm` only exists if the Node install succeeded, so the pnpm/claude-code step
+checks `has npm` first. Same for `systemctl`, `sudo`, `chsh`, `rustup`.
+
+The scripts use `set -uo pipefail`, **not** `set -e`: one failed package should
+report itself and let the rest of the setup finish, rather than aborting
+half-configured.
+
 ## Adding a new tool
 
 1. Create `<tool>/.config/<tool>/` (or wherever the tool reads its config).
-2. Add it to `BREW_FORMULAE` (or `BREW_CASKS`) in `install-mac.sh` and to
-   `PACKAGES` in `install-omarchy.sh`. Package names differ: `gh` on Homebrew
-   is `github-cli` on Arch.
-3. Add the package to the `PACKAGES` stow list in both scripts.
+2. Add an install line to both scripts, **always passing the binary to verify**:
+   - `install-mac.sh`: `brew_install formula <pkg> <bin>` (or `cask`)
+   - `install-omarchy.sh`: `install_pkg <pkg> <bin>`, or `install_any <bin> <pkg-a> <pkg-b>`
+     when the package name differs between repos.
+   Omit the binary only for packages that ship no executable (e.g.
+   `zsh-syntax-highlighting`).
+3. Add the package to the stow `for` loop in both scripts.
 4. If anything writes to its config dir at runtime, add that dir to the
    `mkdir -p` list in both scripts (see Tree folding above).
 5. Document it in the README tools table.

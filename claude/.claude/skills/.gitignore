@@ -1,1 +1,9 @@
+# Personal, not shared across machines
 work-commonplace/
+
+# Claude Code manages these inside the skills directory at runtime.
+# ~/.claude/skills is a symlink to this folder, so its state lands here.
+synced/
+.trash/
+.bucket-*
+.last-complete-round
