@@ -1,0 +1,46 @@
+# SSH private keys — never commit
+ssh/.ssh/id_*
+!ssh/.ssh/id_*.pub
+ssh/.ssh/known_hosts
+ssh/.ssh/authorized_keys
+
+# AWS live config — only the template is tracked
+aws/.aws/config
+aws/.aws/credentials
+
+# Herdr runtime state
+herdr/.config/herdr/herdr-client.log
+herdr/.config/herdr/herdr-client.sock
+herdr/.config/herdr/herdr-server.log
+herdr/.config/herdr/herdr.sock
+herdr/.config/herdr/session.json
+herdr/.config/herdr/release-notes.json
+herdr/.config/herdr/onboarding
+
+# Claude state (auto-generated)
+claude/.claude/cache/
+claude/.claude/history.jsonl
+claude/.claude/sessions/
+claude/.claude/daemon*
+claude/.claude/plugins/
+claude/.claude/projects/
+claude/.claude/agent-memory/
+claude/.claude/backups/
+claude/.claude/downloads/
+claude/.claude/hooks/
+claude/.claude/jobs/
+claude/.claude/plans/
+claude/.claude/shell-snapshots/
+claude/.claude/state/
+claude/.claude/chrome/
+claude/.claude/debug/
+claude/.claude/paste-cache/
+claude/.claude/mcp-needs-auth-cache.json
+claude/.claude/stats-cache.json
+claude/.claude/README.md
+
+# Claude synced skills (managed externally)
+claude/.claude/skills/synced/
+
+# macOS
+.DS_Store

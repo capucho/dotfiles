@@ -1,0 +1,12 @@
+[tools]
+# Global runtimes are managed by specialized tools:
+#   Node  — fnm
+#   Go    — brew (mac) / omarchy pkg add (linux)
+#   Rust  — rustup
+#   Python — uv
+#
+# Use .mise.toml at project root for per-project version pinning, e.g.:
+#   [tools]
+#   node = "22"
+#   go = "1.23"
+#   terraform = "1.9"

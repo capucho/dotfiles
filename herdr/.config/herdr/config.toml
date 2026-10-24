@@ -1,0 +1,8 @@
+onboarding = false
+
+[theme]
+name = "rose-pine"
+auto_switch = false
+
+[ui]
+status_indicators = "symbols"

@@ -1,0 +1,122 @@
+# --- ls ---
+alias l='ls -lah'
+alias la='ls -la'
+alias ll='ls -l'
+alias lsa='ls -lah'
+alias sl='ls'
+
+# --- directory navigation ---
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias -- -='cd -'
+alias 1='cd -1'
+alias 2='cd -2'
+alias 3='cd -3'
+alias d='dirs -v'
+
+# --- git (subset of prezto's git module) ---
+alias g='git'
+
+alias ga='git add'
+alias gaa='git add --all'
+alias gapa='git add --patch'
+
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gbD='git branch -D'
+
+alias gc='git commit -v'
+alias gcm='git commit -m'
+alias gca='git commit -v --amend'
+alias gcan='git commit -v --amend --no-edit'
+
+alias gco='git checkout'
+alias gcb='git checkout -b'
+
+alias gd='git diff'
+alias gds='git diff --staged'
+
+alias gf='git fetch'
+alias gfa='git fetch --all --prune'
+
+alias gl='git log --oneline --graph --decorate'
+alias gla='git log --oneline --graph --decorate --all'
+
+alias gm='git merge'
+
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gpu='git push -u origin HEAD'
+alias gpc='git push --set-upstream origin $(git symbolic-ref --short HEAD)'
+
+alias gr='git remote'
+alias grv='git remote -v'
+
+alias grb='git rebase'
+alias grbi='git rebase -i'
+alias grbc='git rebase --continue'
+alias grba='git rebase --abort'
+
+alias gst='git status'
+alias gss='git status -s'
+
+alias gsta='git stash'
+alias gstp='git stash pop'
+alias gstl='git stash list'
+
+alias gclean='git clean -fd'
+
+# --- misc ---
+alias c='clear'
+alias h='history'
+alias reload='source ~/.zshrc'
+alias yolo="claude --allow-dangerously-skip-permissions"
+alias open_ports="lsof -i -P -n | grep LISTEN"
+
+# --- worktree ---
+wtnew() {
+  local branch="$1"
+  if [ -z "$branch" ]; then echo "Usage: wtnew <branch-name>"; return 1; fi
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -z "$root" ]; then echo "Not inside a git repository"; return 1; fi
+  local dir="$root/.worktrees/$branch"
+  mkdir -p "$root/.worktrees"
+  git -C "$root" worktree add "$dir" -b "$branch"
+  cd "$dir"
+}
+
+wtrm() {
+  local branch="$1"
+  if [ -z "$branch" ]; then echo "Usage: wtrm <branch-name>"; return 1; fi
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -z "$root" ]; then echo "Not inside a git repository"; return 1; fi
+  git -C "$root" worktree remove "$root/.worktrees/$branch"
+}
+
+# --- ssh key management ---
+dotfiles-gen-git-key() {
+  local email="${1:-}"
+  if [ -z "$email" ]; then
+    echo "Usage: dotfiles-gen-git-key <email>"
+    return 1
+  fi
+  ssh-keygen -t ed25519 -C "$email" -f "$HOME/.ssh/id_ed25519_git"
+  eval "$(ssh-agent -s)"
+  ssh-add "$HOME/.ssh/id_ed25519_git"
+  echo ""
+  echo "Public key (add to GitHub/GitLab):"
+  cat "$HOME/.ssh/id_ed25519_git.pub"
+}
+
+dotfiles-gen-machine-key() {
+  local name="${1:-$(hostname)}"
+  ssh-keygen -t ed25519 -C "$name" -f "$HOME/.ssh/id_ed25519_machines"
+  eval "$(ssh-agent -s)"
+  ssh-add "$HOME/.ssh/id_ed25519_machines"
+  echo ""
+  echo "Public key (use with: ssh-copy-id -i ~/.ssh/id_ed25519_machines.pub user@host):"
+  cat "$HOME/.ssh/id_ed25519_machines.pub"
+}

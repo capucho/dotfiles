@@ -1,0 +1,2 @@
+# Optiplex homelab server overrides
+export HOMELAB_HOST="optiplex"

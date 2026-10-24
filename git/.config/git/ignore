@@ -1,0 +1,35 @@
+# Claude skills — per-project agent state
+.scratch/
+.capucho/
+
+# Git worktrees
+.worktrees/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Vim/Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Editor directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
