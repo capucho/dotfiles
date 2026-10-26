@@ -1,13 +1,186 @@
-# Get editor completions based on the config schema
-"$schema" = 'https://starship.rs/config-schema.json'
+"$schema" = "https://starship.rs/config-schema.json"
 
-# Inserts a blank line between shell prompts
-add_newline = true
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$bun\
+$rust\
+$line_break\
+$character"""
 
-# Replace the '❯' symbol in the prompt with '➜'
-[character] # The name of the module we are configuring is 'character'
-success_symbol = '[➜](bold green)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
+command_timeout = 500
 
-# Disable the package module, hiding it from the prompt completely
+# ─── Directory ────────────────────────────────────────────────────────────────
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold blue"
+read_only = " "
+read_only_style = "red"
+
+# ─── Git ──────────────────────────────────────────────────────────────────────
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "bold purple"
+truncation_length = 30
+truncation_symbol = "…"
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = "bold red"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕"
+modified = "!${count}"
+untracked = "?${count}"
+staged = "+${count}"
+deleted = "✘${count}"
+stashed = ""
+
+# ─── Runtimes ─────────────────────────────────────────────────────────────────
+
+[nodejs]
+format = "[$symbol$version]($style) "
+style = "bold green"
+detect_files = ["package.json", ".nvmrc", ".node-version"]
+detect_folders = ["node_modules"]
+
+[python]
+format = "[$symbol$version]($style) "
+style = "bold yellow"
+detect_files = ["pyproject.toml", ".python-version", "uv.lock", "requirements.txt"]
+detect_folders = [".venv"]
+detect_extensions = ["py"]
+
+[bun]
+format = "[$symbol$version]($style) "
+style = "bold yellow"
+detect_files = ["bun.lock", "bun.lockb", "bunfig.toml"]
+
+[rust]
+format = "[$symbol$version]($style) "
+style = "bold red"
+detect_files = ["Cargo.toml"]
+
+# ─── Prompt character ────────────────────────────────────────────────────────
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold yellow)"
+
+# ─── Disabled modules ────────────────────────────────────────────────────────
+
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[battery]
+disabled = true
+
+[buf]
+disabled = true
+
+[cmake]
+disabled = true
+
+[cmd_duration]
+disabled = true
+
+[conda]
+disabled = true
+
+[crystal]
+disabled = true
+
+[dart]
+disabled = true
+
+[deno]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[golang]
+disabled = true
+
+[haskell]
+disabled = true
+
+[helm]
+disabled = true
+
+[hostname]
+disabled = true
+
+[java]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[lua]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[nim]
+disabled = true
+
+[ocaml]
+disabled = true
+
 [package]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[purescript]
+disabled = true
+
+[scala]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
+
+[time]
+disabled = true
+
+[username]
+disabled = true
+
+[vagrant]
+disabled = true
+
+[zig]
 disabled = true

@@ -1,8 +1,19 @@
 onboarding = false
 
-[theme]
-name = "rose-pine"
-auto_switch = false
-
 [ui]
 status_indicators = "symbols"
+
+[ui.toast]
+delivery = "herdr"
+
+[theme]
+name = "catppuccin"
+auto_switch = false
+
+[keys]
+prefix = "ctrl+b"
+remove_worktree = "prefix+shift+backspace"
+previous_workspace = "prefix+shift+left"
+next_workspace = "prefix+shift+right"
+previous_agent = "prefix+shift+up"
+next_agent = "prefix+shift+down"

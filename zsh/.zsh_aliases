@@ -1,11 +1,19 @@
 # --- ls ---
+# BSD ls colors with -G; on GNU ls -G means --no-group.
+if [ "$(uname -s)" = "Darwin" ]; then
+  alias ls='ls -G'
+else
+  alias ls='ls --color=auto'
+fi
 alias l='ls -lah'
-alias la='ls -la'
+alias la='ls -lAh'
 alias ll='ls -l'
 alias lsa='ls -lah'
+alias lt='ls -lAht'
 alias sl='ls'
 
 # --- directory navigation ---
+alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias -- -='cd -'
@@ -13,6 +21,7 @@ alias 1='cd -1'
 alias 2='cd -2'
 alias 3='cd -3'
 alias d='dirs -v'
+alias ~='cd ~'
 
 # --- git (subset of prezto's git module) ---
 alias g='git'
@@ -25,14 +34,17 @@ alias gb='git branch'
 alias gba='git branch -a'
 alias gbd='git branch -d'
 alias gbD='git branch -D'
+alias last_branches='git branch --sort=-committerdate'
 
 alias gc='git commit -v'
 alias gcm='git commit -m'
 alias gca='git commit -v --amend'
 alias gcan='git commit -v --amend --no-edit'
+alias gcane='git commit --amend --no-edit'
 
 alias gco='git checkout'
 alias gcb='git checkout -b'
+alias gcob='git checkout -b'
 
 alias gd='git diff'
 alias gds='git diff --staged'
@@ -42,6 +54,8 @@ alias gfa='git fetch --all --prune'
 
 alias gl='git log --oneline --graph --decorate'
 alias gla='git log --oneline --graph --decorate --all'
+alias glog='git log --oneline --graph --decorate'
+alias gloga='git log --oneline --graph --decorate --all'
 
 alias gm='git merge'
 
@@ -49,6 +63,9 @@ alias gp='git push'
 alias gpf='git push --force-with-lease'
 alias gpu='git push -u origin HEAD'
 alias gpc='git push --set-upstream origin $(git symbolic-ref --short HEAD)'
+
+alias gpl='git pull'
+alias gplr='git pull --rebase'
 
 alias gr='git remote'
 alias grv='git remote -v'
@@ -58,8 +75,12 @@ alias grbi='git rebase -i'
 alias grbc='git rebase --continue'
 alias grba='git rebase --abort'
 
+alias grh='git reset HEAD'
+alias grhh='git reset --hard HEAD'
+
 alias gst='git status'
 alias gss='git status -s'
+alias gs='git status -sb'
 
 alias gsta='git stash'
 alias gstp='git stash pop'
@@ -73,17 +94,26 @@ alias h='history'
 alias reload='source ~/.zshrc'
 alias yolo="claude --allow-dangerously-skip-permissions"
 alias open_ports="lsof -i -P -n | grep LISTEN"
+alias cpcwd='pwd | ${=CLIPBOARD_CMD:-cat}'
+alias k='kubectl'
+alias tf='terraform'
 
 # --- worktree ---
+# wtnew <branch> [origin-branch] — branch off origin/<origin-branch> when given
 wtnew() {
-  local branch="$1"
-  if [ -z "$branch" ]; then echo "Usage: wtnew <branch-name>"; return 1; fi
+  local branch="$1" origin="$2"
+  if [ -z "$branch" ]; then echo "Usage: wtnew <branch-name> [origin-branch]"; return 1; fi
   local root
   root=$(git rev-parse --show-toplevel 2>/dev/null)
   if [ -z "$root" ]; then echo "Not inside a git repository"; return 1; fi
   local dir="$root/.worktrees/$branch"
   mkdir -p "$root/.worktrees"
-  git -C "$root" worktree add "$dir" -b "$branch"
+  if [ -n "$origin" ]; then
+    git -C "$root" fetch origin "$origin"
+    git -C "$root" worktree add "$dir" -b "$branch" "origin/$origin"
+  else
+    git -C "$root" worktree add "$dir" -b "$branch"
+  fi
   cd "$dir"
 }
 
@@ -94,6 +124,11 @@ wtrm() {
   root=$(git rev-parse --show-toplevel 2>/dev/null)
   if [ -z "$root" ]; then echo "Not inside a git repository"; return 1; fi
   git -C "$root" worktree remove "$root/.worktrees/$branch"
+}
+
+# Fetch and rebase onto origin/main
+grbm() {
+  git fetch origin main && git rebase origin/main
 }
 
 # --- ssh key management ---

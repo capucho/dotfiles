@@ -122,6 +122,8 @@ brew_install formula uv         uv
 brew_install formula fnm        fnm
 brew_install formula go         go
 brew_install formula zsh-syntax-highlighting
+brew_install formula zsh-autosuggestions
+brew_install formula zsh-history-substring-search
 
 step "Casks"
 brew_install cask ghostty ghostty

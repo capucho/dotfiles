@@ -59,6 +59,12 @@ Three independent layers, because any one alone leaves a gap:
 
 Do not drop to only `chsh`: it requires a full logout, so a fresh Omarchy box
 would run bash in the meantime.
+- zsh private settings: `.zshrc` sources `~/.zshrc.private` after
+  `~/.zshrc.local`. It is a plain file in `$HOME`, never stowed and with no
+  copy in the repo. Tokens, work endpoints and employer-specific aliases go
+  there — never in `.zshrc`, `.zsh_aliases` or `hosts/*/.zshrc.local`, which
+  are all tracked. Installers that append to `~/.zshrc` (Docker Desktop does)
+  write through the symlink into the repo, so review zsh diffs before committing.
 - Ghostty: the shared `config` holds cross-platform keys only and ends with
   `config-file = ?~/.config/ghostty/os-local`. Machine-specific keys live in
   `hosts/<hostname>/.config/ghostty/os-local`. `macos-option-as-alt` and a
@@ -123,6 +129,7 @@ half-configured.
 - Claude state dirs (`cache/`, `sessions/`, `history.jsonl`, `projects/`, etc.)
 - The `claude/.claude/skills/synced/` directory (marketplace-managed)
 - `.env` files of any kind
+- `~/.zshrc.private` contents (tokens, work endpoints, employer aliases)
 
 ## Neovim theme split
 

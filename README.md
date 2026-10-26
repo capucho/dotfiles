@@ -54,6 +54,8 @@ machine is non-destructive.
 | mise | ✓ | ✓ | per-project version pinning only |
 | fzf + zoxide + bat | ✓ | ✓ | shell quality-of-life |
 | zsh-syntax-highlighting | ✓ | ✓ | |
+| zsh-autosuggestions | ✓ | ✓ | inline history suggestions |
+| zsh-history-substring-search | ✓ | ✓ | up/down (or k/j) cycle matching history |
 | hugo | ✓ | ✓ | static site generator |
 | terraform | ✓ | ✓ | IaC |
 | docker | note | ✓ | Mac: install Docker Desktop manually |
@@ -133,6 +135,8 @@ dotfiles/
 - Claude cache, history, sessions
 - Tmux plugins (TPM clones them at install time)
 - `.env` files
+- Private shell settings — tokens, work endpoints and employer aliases live in
+  `~/.zshrc.private`, a plain untracked file that `.zshrc` sources if present
 
 The install scripts pre-create `~/.ssh`, `~/.claude`, `~/.config/git`,
 `~/.config/herdr` and `~/.config/tmux` as real directories so that stow links

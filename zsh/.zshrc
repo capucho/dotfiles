@@ -1,5 +1,6 @@
 export EDITOR="nvim"
 export VISUAL="nvim"
+export LANG="en_US.UTF-8"
 
 # $SHELL reports the passwd entry, not the shell actually running. Ghostty is
 # configured to launch zsh directly, so on a machine where chsh has not taken
@@ -9,6 +10,9 @@ export VISUAL="nvim"
 if [ -n "${ZSH_VERSION:-}" ]; then
   export SHELL="${commands[zsh]:-$SHELL}"
 fi
+
+# Keep PATH entries unique — several tools below prepend unconditionally.
+typeset -gU path
 
 # Local binaries (fnm, uv and other installers land here on Linux)
 export PATH="$HOME/.local/bin:$PATH"
@@ -50,6 +54,18 @@ export PATH="$PATH:$GOBIN"
 # SSH
 export OPTIPLEX_IP="192.168.0.115"
 
+# History
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY HIST_REDUCE_BLANKS
+
+# Vi mode. Set before fzf so its widgets bind into the vi keymaps.
+bindkey -v
+
+# Completion
+autoload -Uz compinit && compinit
+
 # tmux autostart — attach to existing session or create one
 # disabled by default; uncomment to enable
 # if command -v tmux &>/dev/null \
@@ -90,8 +106,13 @@ fi
 # Aliases
 [[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
 
-# Machine-specific overrides
+# Machine-specific overrides (stowed from hosts/<hostname>/)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# Private, per-machine settings that must never be committed: tokens, work
+# endpoints, employer-specific aliases. A plain file in $HOME — the repo has
+# no copy of it, so there is nothing to stow and nothing to leak.
+[[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
 
 # Starship prompt
 if command -v starship &>/dev/null; then
@@ -103,15 +124,36 @@ if command -v zoxide &>/dev/null; then
   eval "$(zoxide init zsh)"
 fi
 
-# Syntax highlighting — must be sourced last. Path differs per OS.
-for _zsh_hl in \
-  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /opt/homebrew/opt/zsh-syntax-highlighting/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-do
-  if [[ -f "$_zsh_hl" ]]; then
-    source "$_zsh_hl"
-    break
-  fi
-done
-unset _zsh_hl
+uptime
+
+# Plugins — sourced last. Paths differ per OS (brew vs Arch packages), so
+# source the first one that exists. Order matters: syntax highlighting, then
+# autosuggestions, then history-substring-search.
+_source_plugin() {
+  local name="$1" f
+  for f in \
+    "/opt/homebrew/share/$name/$name.zsh" \
+    "/opt/homebrew/opt/$name/share/$name/$name.zsh" \
+    "/usr/share/zsh/plugins/$name/$name.zsh"
+  do
+    if [[ -f "$f" ]]; then
+      source "$f"
+      return 0
+    fi
+  done
+  return 1
+}
+
+_source_plugin zsh-syntax-highlighting
+_source_plugin zsh-autosuggestions
+
+# Type part of a command, then up/down (or k/j in vi normal mode) cycles
+# through matching history.
+if _source_plugin zsh-history-substring-search; then
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+  bindkey -M vicmd 'k' history-substring-search-up
+  bindkey -M vicmd 'j' history-substring-search-down
+fi
+
+unfunction _source_plugin

@@ -1,0 +1,9 @@
+# henrique-capucho-macbook — machine overrides (tracked; nothing private here,
+# that goes in ~/.zshrc.private).
+
+export EDITOR="vi"
+export VISUAL="vi"
+
+# pnpm's macOS default home, where this machine's global packages live
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"

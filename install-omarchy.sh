@@ -123,6 +123,8 @@ install_pkg ghostty                 ghostty
 install_pkg wl-clipboard            wl-copy
 install_pkg go                      go
 install_pkg zsh-syntax-highlighting
+install_pkg zsh-autosuggestions
+install_pkg zsh-history-substring-search
 
 # Homebrew calls it gh; Arch calls it github-cli.
 install_any gh github-cli gh
