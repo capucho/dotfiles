@@ -1,0 +1,3 @@
+interface:
+  display_name: "Commonplace"
+  short_description: "Capture and query the Obsidian wiki"
