@@ -11,7 +11,7 @@ from pathlib import Path
 
 TYPES = {"concept", "idea", "entity", "source", "domain"}
 TYPE_DIRS = {"concepts", "ideas", "entities", "sources", "domains"}
-OUTSIDE = {"self-organization", "templates", "swedish", "zz_archives", "assets", ".obsidian", ".git", ".trash"}
+OUTSIDE = {"notes", "templates", "assets"}
 FIXED = {"home.md", "log.md", "working-memory.md", "SCHEMA.md"}
 MAX_LINES = 200
 
