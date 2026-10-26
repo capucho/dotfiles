@@ -15,7 +15,10 @@ command = zsh
 config-file = ?~/.config/omarchy/current/theme/ghostty.conf
 config-file = ?~/.local/state/omarchy/current/theme/ghostty.conf
 
-# Per-machine overrides. Ghostty applies config-file includes at the end of the
+# Per-machine overrides, stowed from hosts/<hostname>/. Kept outside
+# ~/.config/ghostty on purpose: if the host package also linked into that
+# directory, stow --restow ghostty would try to fold it into one symlink and fail.
+# Ghostty applies config-file includes at the end of the
 # file, in order, so this one wins over the theme includes above. On macOS it
 # sets the theme; on Omarchy the file is absent, so the system theme applies.
-config-file = ?~/.config/ghostty/os-local
+config-file = ?~/.config/ghostty-os-local

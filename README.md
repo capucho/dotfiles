@@ -92,15 +92,38 @@ Copy a machine key to a remote host:
 ssh-copy-id -i ~/.ssh/id_ed25519_machines.pub user@192.168.0.115
 ```
 
-## Updating
+## Updating — TL;DR
+
+Configs are symlinks into this repo, so **editing a config anywhere edits the
+repo**. Syncing is just git, plus a restow when files are added or removed.
+
+**Changed something on this machine → share it**
+
+```sh
+cd ~/dotfiles
+git diff              # check nothing private slipped in
+git add -A && git commit -m "..." && git push
+```
+
+**Pull changes from another machine**
 
 ```sh
 cd ~/dotfiles
 git pull
-stow --restow --target="$HOME" <changed-package>
+stow -R <package>                    # only if files were added/removed/renamed
+stow -R -d hosts "$(hostname -s)"    # only if this machine's host files changed
 ```
 
-Or re-run the install script — it's idempotent.
+Edits to existing files need no restow — the symlink already points at them.
+
+**Add something new** (a skill, a plugin file): create it *inside the repo*
+(`~/dotfiles/<package>/...`), then `stow -R <package>`. A file created next to a
+symlink in `~` lives only on that machine.
+
+`stow` needs no `--target`: `.stowrc` in this repo sets it to `~`, so always
+run stow from `~/dotfiles`. A machine that deliberately leaves some files
+unlinked lists `--ignore=<regex>` lines in its own `~/.stowrc` (untracked); stow
+reads both. Or just re-run the install script — it's idempotent.
 
 ## Repo structure
 

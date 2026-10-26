@@ -66,8 +66,10 @@ would run bash in the meantime.
   are all tracked. Installers that append to `~/.zshrc` (Docker Desktop does)
   write through the symlink into the repo, so review zsh diffs before committing.
 - Ghostty: the shared `config` holds cross-platform keys only and ends with
-  `config-file = ?~/.config/ghostty/os-local`. Machine-specific keys live in
-  `hosts/<hostname>/.config/ghostty/os-local`. `macos-option-as-alt` and a
+  `config-file = ?~/.config/ghostty-os-local`. Machine-specific keys live in
+  `hosts/<hostname>/.config/ghostty-os-local` — deliberately outside
+  `~/.config/ghostty`. Host files must never share a directory with a package:
+  two stow dirs linking into one directory makes `stow -R` try to fold it and fail. `macos-option-as-alt` and a
   hardcoded `theme` are macOS-only — on Linux they are unknown fields and
   Ghostty prints an error at startup. The shared config also optionally
   includes Omarchy's active theme symlink so Omarchy keeps driving the theme.
@@ -147,7 +149,10 @@ Use `.mise.toml` at project root. Global runtimes are managed by specialized too
 ```sh
 cd ~/dotfiles
 git pull
-stow --restow --target="$HOME" <changed-package>
+stow -R <changed-package>   # .stowrc supplies --target=~; run from ~/dotfiles
 ```
+
+Per-machine stow exclusions go in that machine's untracked `~/.stowrc` as
+`--ignore=<regex>` lines (stow reads it alongside the repo's `.stowrc`).
 
 The install scripts are idempotent — safe to re-run after pulling changes.
