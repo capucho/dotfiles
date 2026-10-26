@@ -66,6 +66,8 @@ def main():
                 errors.append(f"{rel}: type is {t!r}")
             elif t != "domain" and not fm.get("domains", "").strip("[] "):
                 errors.append(f"{rel}: missing domains")
+            elif t != "domain":
+                inbound[p] += 1  # listed by its domain's Bases view
             if text.count("\n") > MAX_LINES:
                 big.append(f"{rel}: {text.count(chr(10))} lines")
 
