@@ -97,6 +97,7 @@ alias open_ports="lsof -i -P -n | grep LISTEN"
 alias cpcwd='pwd | ${=CLIPBOARD_CMD:-cat}'
 alias k='kubectl'
 alias tf='terraform'
+alias opus='claude --model claude-opus-5-5'
 
 # --- worktree ---
 # wtnew <branch> [origin-branch] — branch off origin/<origin-branch> when given
